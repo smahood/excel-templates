@@ -4,6 +4,27 @@
             [clojure.java.io :as io]))
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 (defn unzip [src dest]
   (try
     (let [zipfile (ZipFile. src)]
@@ -12,37 +33,19 @@
       (println (.getMessage e)))))
 
 (comment (unzip "foo2.xlsx" "foo_unzipped"))
-;
-;(defn list-files [src]
-;  (try
-;    (let [dir (clojure.java.io/file src)
-;          dir-tree (file-seq dir)
-;          file-tree (filter #(.contains (str %) ".")
-;                            dir-tree)]
-;      (map #(do
-;             (println "------------")
-;             (println (str %))
-;             (println "------------")
-;             (println (slurp %)))
-;           file-tree))
-;    (catch Exception e
-;      (println (.getMessage e)))))
-;
-;(defn zip-map [f z]
-;  (loop [z z]
-;    (if (zip/next z) z)
-;    (zip/root z)
-;    (if (zip/branch? z)
-;      (recur (zip/next z))
-;      (recur (-> z (zip/edit f) zip/next)))))
-;
-;(defn print-zip [z]
-;  (loop [z z]
-;    (if (zip/end? (zip/next z))
-;      (zip/root z)
-;      (if (zip/branch? z)
-;        (recur (zip/next z))
-;        (recur (-> z (println z) zip/next))))))
+
+
+(defn dir-tree-to-html [src]
+  (try
+    (let [dir (clojure.java.io/file src)
+          dir-tree (file-seq dir)]
+      (clojure.string/join (map #(str
+             "<div>"
+             %
+             "</div>")
+           dir-tree))
+
+      )))
 
 
 (defn zip-file [file]
@@ -70,12 +73,15 @@
 
             (str
               "<html><head><link rel='stylesheet' href='http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/styles/default.min.css'><script src='http://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.3.0/highlight.min.js'></script></head><body><script>hljs.initHighlightingOnLoad();</script>"
+              (dir-tree-to-html src)
+
               (clojure.string/join
                 (map
                   #(str "<div>"
                         "<h1>"
                         (:filename %)
                         "</h1>"
+
                         "<pre><code class='xml'>"
                         (-> (first (:xml-zipper %))
                             (clojure.string/replace "<" "&lt;")
@@ -93,3 +99,5 @@
 (unzip "resources/bs-stakeout-stats-template.xlsx" "resources/bs-stakeout-stats-template-unzipped")
 
 (xml-to-html "resources/bs-stakeout-stats-template-unzipped" "resources/bs-stakeout-stats-template.html")
+
+(dir-tree-to-html "New Microsoft Excel Worksheet")

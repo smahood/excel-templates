@@ -7,5 +7,9 @@
                  [org.apache.poi/poi-ooxml "3.10-FINAL"]
                  [org.apache.poi/ooxml-schemas "1.1"]
                  [org.clojure/data.zip "0.1.1" :exclusions [[org.clojure/clojure]]]
-                 [joda-time "2.7"]]
+                 [joda-time "2.7"]
+                 [org.clojure/clojure "1.7.0"]
+                 [net.lingala.zip4j/zip4j "1.3.2"]
+                 [org.clojure/data.xml "0.1.0-beta1"]
+                 ]
   :profiles {:repl {:dependencies [[org.clojure/clojure "1.7.0"]]}})
