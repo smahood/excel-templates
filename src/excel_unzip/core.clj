@@ -1,5 +1,9 @@
 (ns excel-unzip.core
-  (:import [net.lingala.zip4j.core ZipFile])
+  (:import
+    [net.lingala.zip4j.core ZipFile]
+    [java.io File FileInputStream]
+    ;[java.util.zip ZipEntry ZipFile ZipOutputStream ZipInputStream]
+    )
   (:require [clojure.zip :as zip]
             [clojure.java.io :as io]))
 
@@ -9,19 +13,37 @@
 
 
 
+(comment
+  (defn entries [zip-stream]
+    (take-while #(not (nil? %))
+                (repeatedly #(.getNextEntry zip-stream))))
+
+  (defn walk-zip [input-file]
+    (with-open [z (ZipFile. input-file)]
+      z
+      (doseq [e (entries z)]
+        (println "Name")
+        (println (.getName e))
+        (println (.getSize e))
+        (.read e)
+
+        (.closeEntry z))
+      ))
+
+
+  (walk-zip "resources/blank.xlsx")
 
 
 
+  (defn zipfile-to-data [input-file]
+    (let [buf-size 65536
+          buf (byte-array buf-size)]
+      (with-open [zip-file (ZipFile. input-file)]
+        zip-file)))
+  )
 
 
-
-
-
-
-
-
-
-
+(comment (zipfile-to-data "resources/blank.xlsx"))
 
 
 
@@ -40,12 +62,10 @@
     (let [dir (clojure.java.io/file src)
           dir-tree (file-seq dir)]
       (clojure.string/join (map #(str
-             "<div>"
-             %
-             "</div>")
-           dir-tree))
-
-      )))
+                                  "<div>"
+                                  %
+                                  "</div>")
+                                dir-tree)))))
 
 
 (defn zip-file [file]
@@ -87,7 +107,7 @@
                             (clojure.string/replace "<" "&lt;")
                             (clojure.string/replace ">" "&gt;<br/>")
                             (clojure.string/replace "\n" "<br/>")
-                            (clojure.string/replace "' " "' <br/> &nbsp;&nbsp;&nbsp;&nbsp;")
+                            (clojure.string/replace "' " "' <br/>____")
                             (clojure.string/replace "\"" "'"))
                         "</code></pre>"
                         "</div>")
@@ -96,8 +116,20 @@
 
 
 
-(unzip "resources/bs-stakeout-stats-template.xlsx" "resources/bs-stakeout-stats-template-unzipped")
+(unzip "resources/blank.xlsx" "resources/blank")
 
-(xml-to-html "resources/bs-stakeout-stats-template-unzipped" "resources/bs-stakeout-stats-template.html")
+(xml-to-html "resources/blank" "resources/blank.html")
 
-(dir-tree-to-html "New Microsoft Excel Worksheet")
+
+(defn zip-to-html [src folder-to-delete dest]
+  (unzip src folder-to-delete)
+  (xml-to-html folder-to-delete dest))
+
+
+(zip-to-html "resources/legal-draft-invoice-template.xlsx" "resources/legal-draft-invoice-template_temp" "resources/legal-draft-invoice-template.html")
+
+
+(zip-to-html "resources/bar3.xlsx" "resources/bar3_temp" "resources/bar3.html")
+
+
+
